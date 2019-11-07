@@ -1,0 +1,125 @@
+#!---------------------------------------------------------------------
+#!---------------------------------------------------------------------
+#!---------------------------------------------------------------------
+#!---------------------------------------------------------------------
+#! File Name:   UltimateDebug4.TPW
+#! Purpose:     Template add-on's to do procedure tracing from John Hickey.
+#! Author:      Released under the Clarion Open Source License. (http://www.clarionmag.com/cmag/dospl.html)
+#! Changes:     Roberto Artigas
+#!  *   RA.2014.06.04   Begin moving from JH's version .99 to downloadable release
+#!  *   RA.2014.06.06   Completed move of JH's template to the downloadable release
+#!---------------------------------------------------------------------
+#!---------------------------------------------------------------------
+#!---------------------------------------------------------------------
+#!---------------------------------------------------------------------
+#EXTENSION(ProcedureInfoExtension,'RA.2014.06.06: Procedure Information Extension Template'),PROCEDURE
+#DISPLAY('UltimateDebug'),AT(10,0),PROP(PROP:FontStyle,700),PROP(PROP:FontName,'Tahoma')
+#DISPLAY('Version ' & %CLSkelTPLVersion),AT(10,10),PROP(PROP:FontStyle,700),PROP(PROP:FontName,'Tahoma')
+#DISPLAY('Class: ' & %CLSkelClass)
+#DISPLAY('')
+#PROMPT('Disable template',CHECK),%DisableProcedureDebug,AT(10),DEFAULT(0)
+#DISPLAY('')
+#SHEET,AT(,,288),HSCROLL
+#!#TAB('General')
+#!#BOXED(' Markers for GLOBAL Embed Locations'),AT(,,280)
+#!  #ENABLE(~%CLSkelAppDisable)
+#!    #DISPLAY('')
+#!    #PROMPT('Generate Marker Code',CHECK),%TraceCode,DEFAULT(1),AT(10)
+#!    #DISPLAY('')
+#!  #ENDENABLE
+#!#ENDBOXED
+#!#ENDTAB
+#INSERT(%TabPurpose4a)
+#INSERT(%TabTesting4a) 
+#ENDSHEET
+#!
+#!#BOXED  ('')
+#!#DISPLAY('Procedure Info  Extension Template')
+#!#DISPLAY('This Template generates code to display Procedure Information.')
+#!#PROMPT('Disable',CHECK),%DisableProcedureDebug
+#!#DISPLAY('')
+#!#ENDBOXED 
+#!---------------------------------------------------------------------
+
+#!---------------------------------------------------------------------
+#GROUP(%ShowTheProcedureInfo)   
+#IF (%Window <> '')
+    %CLSkelClass.ShowProcedureInfo('%Procedure',%CLSkelClass.SetApplicationName('%Application','%ProgramExtension'),%Window{PROP:Hlp},'%@D02@ProcedureDateCreated @ %@T03@ProcedureTimeCreated','%@D02@ProcedureDateChanged @ %@T03@ProcedureTimeChanged','%(FORMAT(TODAY(),@D02)) @ %(FORMAT(CLOCK(),@T03))')  
+#ELSE
+    %CLSkelClass.ShowProcedureInfo('%Procedure',%CLSkelClass.SetApplicationName('%Application','%ProgramExtension'),'None','%@D02@ProcedureDateCreated @ %@T03@ProcedureTimeCreated','%@D02@ProcedureDateChanged @ %@T03@ProcedureTimeChanged','%(FORMAT(TODAY(),@D02)) @ %(FORMAT(CLOCK(),@T03))')  
+#ENDIF
+
+#GROUP(%ShowEnteringTheProcedure)
+#EMBED(%BeforeDebugInit, 'Before UltimateDebug Init')     #! WEA - 05/23/2017
+    udpt.Init(%CLSkelClass,'%Procedure','%Module','%Application.%ProgramExtension','%@D02@ProcedureDateChanged @ %@T03@ProcedureTimeChanged')    
+#EMBED(%AfterDebugInit, 'After UltimateDebug Init')       #! WEA - 05/23/2017
+#!    ud_ProgramID = %CLSkelClass.Init('%Procedure','%Module','%Application.%ProgramExtension','%@D02@ProcedureDateChanged @ %@T03@ProcedureTimeChanged')    
+         
+#GROUP(%ShowLeavingTheProcedure)
+#!    %CLSkelClass.Kill(ud_ProgramID)
+         
+ #!IF(~%CLSkelAppDisable AND ~%DisableProcedureDebug)
+ #!   %CLSkelClass.DebugPrefix = '[OpenClose]'
+ #!   %CLSkelClass.Debug('>>' & ',M %Module' & ',A ' & CLIP(%CLSkelClass.SetShortApplicationName('%Application','%ProgramExtension')) & ',L ' & '%@D02@ProcedureDateChanged @ %@T03@ProcedureTimeChanged') 
+ #!   %CLSkelClass.DebugPrefix = '%CLDebugPrefix'
+ #!ENDIF
+
+#!GROUP(%ShowLeavingTheProcedure)
+ #!IF(~%CLSkelAppDisable AND ~%DisableProcedureDebug)
+ #!   %CLSkelClass.DebugPrefix = '[OpenClose]'
+ #!   %CLSkelClass.Debug('<<<< ' & ',M %Module' & ',A ' & CLIP(%CLSkelClass.SetShortApplicationName('%Application','%ProgramExtension')) & ',L ' & '%@D02@ProcedureDateChanged @ %@T03@ProcedureTimeChanged')  
+ #!   %CLSkelClass.DebugPrefix = '%CLDebugPrefix'
+ #!ENDIF
+#!---------------------------------------------------------------------
+#!#GROUP(%TabProcedureInfo) 
+#!#TAB('Proc Info')
+#!#PROMPT ('Activate Procedure Info',CHECK),%UDProcInfo,DEFAULT(1)
+#!#ENABLE(%UDProcInfo)
+#!#PROMPT ('Alert Key:',KEYCODE),%UDProcAlert,DEFAULT('CtrlShiftP') 
+#!#PROMPT ('Report Keystate:',@S200),%UDKeyState,DEFAULT('udKeyState:Shift')
+#!#DISPLAY('Available Keystates are:')
+#!#DISPLAY('udKeyState:Shift')                         
+#!#DISPLAY('udKeyState:Ctrl')                          
+#!#DISPLAY('udKeyState:Alt') 
+#!#DISPLAY('')
+#!#DISPLAY('You can use combinations by adding them.')
+#!#DISPLAY('Example:')
+#!#DISPLAY('udKeyState:Shift + udKeyState:Ctrl')   
+#!#DISPLAY('')
+#!#DISPLAY('For continuous display of Procedure Info in your')                       
+#!#DISPLAY('DebugView window set Property: ')
+#!#DISPLAY('    ProcedureInfoToDebugView = TRUE')                       
+#!#ENDENABLE  
+#!#ENDTAB
+#!
+#!---------------------------------------------------------------------
+#GROUP(%TabPurpose4a)
+#TAB('Purpose')
+  #DISPLAY('This was in John Hickey''s Ultimate Debug template collection.')
+  #DISPLAY('It has now (2014.06.06) been moved to the dowloadable release.')
+  #DISPLAY('')
+  #DISPLAY('This template adds Entry and Exit points that can be displayed')
+  #DISPLAY('in the DebugView trace window at the <39>PROCEDURE<39> level.')
+  #DISPLAY('')
+  #DISPLAY('This also adds a pop-up window that will show you what PROCEDURE')
+  #DISPLAY('you are currently in when you press the HOTKEY defined.')
+  #DISPLAY('')
+  #DISPLAY('The information displayed by that window can be sent to the')
+  #DISPLAY('DebugView display window or be copied to the cliboard.')
+  #DISPLAY('')
+  #DISPLAY('Works for both ABC and LEGACY templates.')
+#ENDTAB
+#!
+#!---------------------------------------------------------------------
+#GROUP(%TabTesting4a) 
+#TAB('Testing')
+  #DISPLAY('Tested 2014-06-06 with C9 and ABC templates.')
+  #DISPLAY('Tested 2014-06-06 with C9 and LEGACY templates.')
+  #DISPLAY('')
+  #DISPLAY('No other tests done.'),PROP(PROP:FontStyle,700),PROP(PROP:FontName,'Tahoma')
+  #ENDTAB
+#!
+#!---------------------------------------------------------------------
+#!---------------------------------------------------------------------
+#!---------------------------------------------------------------------
+#!---------------------------------------------------------------------
